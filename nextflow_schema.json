@@ -1,0 +1,224 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://raw.githubusercontent.com/Luxen13/piper/master/nextflow_schema.json",
+    "title": "DModE - Preprocessing",
+    "workflow_title": "DModE - Differential modification and expression analysis pipeline (Preprocessing)",
+    "url": "https://github.com/Luxen13/piper",
+    "description": "A Nextflow pipeline for modification detection and expression quantification with direct RNA Nanopore sequencing.",
+    "type": "object",
+    "definitions": {
+        "input": {
+            "title": "Input/output options",
+            "type": "object",
+            "fa_icon": "fas fa-arrow-right",
+            "description" : "Input parameters for Preprocessing",
+            "properties": {
+                "pod5_dir": {
+                    "title": "Pod5 folder",
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Path to the directory containing POD5 files only.",
+                    "help_text": "This is the directory where the raw nanopore signal data is stored."
+                },
+                "ref_genome": {
+                    "title": "Genome reference",
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to the reference genome in FASTA format.",
+                    "help_text": "The reference genome to which the basecalled reads will be aligned."
+                },
+                "ref_transcriptome": {
+                    "title": "Transcriptome reference",
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to the reference transcriptome in FASTA format.",
+                    "help_text": "The reference transcriptome to which the basecalled reads will be aligned."
+                },
+                "genome_gtf": {
+                    "title": "Genome annotation",
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to the genome annotation file in GTF format.",
+                    "help_text": "The GTF file containing genome annotations."
+                },
+                "outdir": {
+                    "title": "Output directory",
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "The output directory where the results will be saved.",
+                    "help_text": "Results will be organized in subdirectories for each analysis step."
+                },
+                "publish_mode": {
+                    "title": "Publish Mode",
+                    "type": "string",
+                    "default": "copy",
+                    "enum": ["symlink", "copy"],
+                    "description": "Method for saving results (symlink or copy).",
+                    "help_text": "Select 'symlink' to link files (saves disk space) or 'copy' to duplicate them (safer for long-term storage)."
+                }
+            },
+            "allOf": [
+                {
+                    "required": [
+                        "pod5_dir",
+                        "ref_genome",
+                        "ref_transcriptome",
+                        "genome_gtf"
+                    ]
+                }
+            ]
+        },
+        "dorado_options": {
+            "title": "Dorado options",
+            "type": "object",
+            "properties": {
+                "model": {
+                    "title": "Dorado model",
+                    "type": "string",
+                    "enum": ["fast","hac","sup"],
+                    "default": "sup",
+                    "description": "Basecalling model alias or full name",
+                    "help_text": "Use 'fast', 'hac', or 'sup' for automatic detection, or provide a full model name for reproducibility."
+                },
+                "mods": {
+                    "title": "Should modifications be detected ?",
+                    "type": "string",
+                    "default": "false",
+                    "description": "Space-separated list of modifications to call (e.g., 'm6A 5mC').",
+                    "help_text": "Set to false to disable modification calling."
+                }
+            }
+        },
+        "modkit_options": {
+            "title": "Modkit Options",
+            "type": "object",
+            "fa_icon": "fas fa-cogs",
+            "properties": {
+                "modkit_threshold": {
+                    "title": "Modification confidence threshold",
+                    "type": "number",
+                    "default": 0.98,
+                    "description": "Probability threshold for Modkit pileup.",
+                    "help_text": "Minimum probability to count a call as modified."
+                },
+                "modkit_filter_threshold": {
+                    "title": "Filter threshold",
+                    "type": "number",
+                    "default": 0.8,
+                    "description": "Filter threshold for Modkit pileup.",
+                    "help_text": "Minimum probability to consider a site as modified."
+                }
+            }
+        },
+        "gpu_options": {
+            "title": "GPU Options",
+            "type": "object",
+            "fa_icon": "fas fa-microchip",
+            "properties": {
+                "use_gpu": {
+                    "title": "Which GPU should be used (cuda:0-cuda:4,cuda:all options)",
+                    "type": "string",
+                    "enum": ["cuda:0","cuda:1","cuda:2","cuda:3","cuda:4","cuda:0,1","cuda:2,3","cuda:3,4","cuda:all"],
+                    "default": "cuda:all",
+                    "description": "Use GPU acceleration for basecalling",
+                    "help_text": "Enable GPU acceleration for faster basecalling. Disable if no GPU is available."
+                },
+                "cpus": {
+                    "title": "Number of threads/cpus",
+                    "type": "integer",
+                    "default": 4,
+                    "description": "Number of CPUs to use for multi-threaded processes",
+                    "help_text": "Specifies the number of CPU cores to allocate to each process."
+                }
+            }
+        },
+        "advanced_options": {
+            "title": "Advanced Options",
+            "type": "object",
+            "fa_icon": "far fa-question-circle",
+            "description": "Advanced options for configuring processes inside the workflow.",
+            "help_text": "These advanced options do not need to be changed for typical use, but allow fine tuning of workflows for users who want more control over the workflow.",
+            "properties": {}
+        },
+        "misc": {
+            "title": "Miscellaneous Options",
+            "type": "object",
+            "description": "Everything else.",
+            "default": "",
+            "properties": {
+                "disable_ping": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable to prevent sending a workflow ping."
+                },
+                "help": {
+                    "type": "boolean",
+                    "description": "Display help text.",
+                    "fa_icon": "fas fa-question-circle",
+                    "default": false,
+                    "hidden": true
+                },
+                "version": {
+                    "type": "boolean",
+                    "description": "Display version and exit.",
+                    "fa_icon": "fas fa-question-circle",
+                    "default": false,
+                    "hidden": true
+                }
+            }
+        }
+    },
+    "allOf": [
+        {
+            "$ref": "#/definitions/input"
+        },
+        {
+            "$ref": "#/definitions/dorado_options"
+        },
+        {
+            "$ref": "#/definitions/modkit_options"
+        },
+        {
+            "$ref": "#/definitions/gpu_options"
+        },
+        {   
+            "$ref": "#/definitions/advanced_options"
+        },
+        {
+            "$ref": "#/definitions/misc"
+        }
+    ],
+    "properties": {
+        "aws_image_prefix": {
+            "type": "string",
+            "hidden": true
+        },
+        "aws_queue": {
+            "type": "string",
+            "hidden": true
+        },
+        "monochrome_logs": {
+            "type": "boolean"
+        },
+        "validate_params": {
+            "type": "boolean",
+            "default": true
+        },
+        "show_hidden_params": {
+            "type": "boolean"
+        }
+    },
+    "resources": {
+        "recommended": {
+            "cpus": 32,
+            "memory": "128GB"
+        },
+        "minimum": {
+            "cpus": 16,
+            "memory": "64GB"
+        },
+        "run_time": "~10 hours per sample, highly dependent on dataset size",
+        "arm_support": true 
+    }
+}
+
