@@ -2,9 +2,6 @@
 
 A [Nextflow](https://www.nextflow.io/) pipeline for preprocessing Oxford Nanopore direct RNA sequencing data as part of the **DModE** (Differential Modification and Expression) framework. Starting from raw POD5 files, it produces aligned BAMs, gene/transcript expression quantifications, and per-site RNA modification pileups.
 
-**Authors:** Luca Drescher, Johannes Miedema, Stefan Pastore  
-**Version:** 0.5.0
-
 ---
 
 ## Pipeline overview
