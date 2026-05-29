@@ -94,35 +94,6 @@ Pass modification names as a comma-separated string. Compound names combine mult
 
 ---
 
-## Outputs
-
-```
-results/
-├── base/                        # Raw and aligned BAM files
-│   ├── <sample>.bam                  # Dorado output (unaligned)
-│   ├── <sample>.aligned.sorted.bam   # Genome-aligned, sorted & indexed
-│   └── <sample>.transcriptome.aligned.sorted.bam
-├── featureC/                    # featureCounts gene expression
-│   ├── <sample>.featurecounts.tsv
-│   └── <sample>.featurecounts.tsv.summary
-├── salmon/                      # Salmon transcript quantification
-│   └── salmon.<sample>.<index>/
-├── nanocomp/                    # NanoComp alignment QC
-│   └── nanocomp_report_<sample>/
-├── modkitGenome/                # Genome modification pileup (if --mods set)
-│   ├── <sample>.genome.bed
-│   └── <sample>.genome.log
-├── modkitTranscriptome/         # Transcriptome modification pileup (if --mods set)
-│   ├── <sample>.transcriptome.bed
-│   └── <sample>.transcriptome.log
-└── execution/                   # Nextflow run reports
-    ├── timeline.html
-    ├── report.html
-    └── trace.txt
-```
-
----
-
 ## Tutorial: running with test data
 
 A small test POD5 file (`testdata/1k_test_set.pod5`, ~1 k reads) is included in the repository so you can verify the pipeline works before committing to a full run.
