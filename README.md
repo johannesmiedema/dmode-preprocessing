@@ -6,26 +6,7 @@ A [Nextflow](https://www.nextflow.io/) pipeline for preprocessing Oxford Nanopor
 
 ## Pipeline overview
 
-```
-POD5 files
-    │
-    ▼
-DORADO_BASECALL           GPU basecalling + optional modification calling
-    │
-    ├──────────────────────────────────────┐
-    ▼                                      ▼
-MINIMAP2_ALIGN_GENOME              MINIMAP2_ALIGN_TRANSCRIPTOME
-(splice-ont preset)                (map-ont preset)
-    │                                      │
-    ├── FEATURECOUNTS_GENOME               ├── SALMON_QUANT
-    │   (gene-level counts)                │   (transcript-level quant)
-    │                                      │
-    ├── MODKIT_PILEUP_GENOME               ├── MODKIT_PILEUP_TRANSCRIPTOME
-    │   (if --mods set)                    │   (if --mods set)
-    │                                      │
-    └──────────────── NANOCOMP ────────────┘
-                      (QC report)
-```
+![DModE pipeline overview](dmode.png)
 
 | Step | Tool | Purpose |
 |------|------|---------|
