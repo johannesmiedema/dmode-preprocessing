@@ -33,8 +33,8 @@ MINIMAP2_ALIGN_GENOME              MINIMAP2_ALIGN_TRANSCRIPTOME
 | Step | Tool | Purpose |
 |------|------|---------|
 | Basecalling | [Dorado](https://github.com/nanoporetech/dorado) | Convert POD5 signals to reads; optionally call RNA modifications |
-| Genome alignment | Minimap2 (`splice-ont`) | Splice-aware alignment, preserving MM/ML modification tags |
-| Transcriptome alignment | Minimap2 (`map-ont`) | Direct transcriptome alignment for quantification |
+| Genome alignment | Minimap2 (`splice-ont`) | Splice-aware alignment|
+| Transcriptome alignment | Minimap2 (`map-ont`) | transcriptome alignment |
 | Gene expression | featureCounts (`-L` long-read mode) | Gene-level read counts from genome-aligned BAM |
 | Transcript expression | Salmon | Transcript-level quantification from transcriptome-aligned BAM |
 | QC | NanoComp | Alignment statistics comparing genome vs. transcriptome BAMs |
