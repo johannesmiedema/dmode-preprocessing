@@ -44,8 +44,9 @@ MINIMAP2_ALIGN_GENOME              MINIMAP2_ALIGN_TRANSCRIPTOME
 - **Nextflow** ≥ 22.10.0
 - **Docker**
 - **NVIDIA GPU** with CUDA (required for Dorado basecalling)
+- **NVIDIA Container Toolkit** — allows Docker containers to access the GPU ([installation guide](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html))
 
-All tools run inside Docker containers — no manual software installation needed beyond Nextflow itself.
+All tools run inside Docker containers — no manual software installation needed beyond Nextflow and the NVIDIA Container Toolkit. The CUDA toolkit does not need to be installed on the host; the Dorado container bundles everything it needs.
 
 ---
 
