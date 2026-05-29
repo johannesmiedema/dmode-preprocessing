@@ -198,8 +198,8 @@ Output files appear in the directory you configured for results, with the same f
 
 ## GPU & performance tips
 
-- **`--model sup`** (default) gives highest accuracy but requires more GPU memory. Switch to `hac` or `fast` if GPU memory is limited.
-- **`--mods`** increases GPU memory and compute time proportionally to the number of modification types called. Start with a single modification if testing.
+- **`--model sup`** (default) gives highest accuracy but requires the most GPU memory. Switch to `hac` to reduce memory usage while retaining modification calling support. `fast` is the lightest option but **does not support modification calling** — do not combine `--model fast` with `--mods`.
+- **`--mods`** requires `sup` or `hac`. It increases GPU memory and compute time proportionally to the number of modification types called. Start with a single modification if testing.
 - **`--publish_mode symlink`** avoids copying large BAM files to the output directory. Only use this if you will not clean the Nextflow work directory.
 - Use `--use_gpu cuda:0` to restrict Dorado to a specific GPU on a multi-GPU machine.
 
