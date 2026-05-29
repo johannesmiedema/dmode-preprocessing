@@ -165,12 +165,12 @@ nextflow run main.nf \
   --outdir ./test_results
 ```
 
-`--model fast` is recommended here to reduce runtime. To also test modification calling, add `--mods`:
+`--model fast` is recommended here to reduce runtime. Note that modification calling requires `hac` or `sup` — `fast` does not support it. To also test modification calling, add `--mods`:
 
 ```bash
 nextflow run main.nf \
   --pod5_dir ./testdata \
-  --model fast \
+  --model hac \
   --mods "m6A_DRACH" \
   --ref_genome ./refs/genome.fa \
   --ref_transcriptome ./refs/transcripts.fa \
