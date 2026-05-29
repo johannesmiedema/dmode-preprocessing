@@ -104,8 +104,9 @@ Pass modification names as a comma-separated string. Compound names combine mult
 
 | Name | Description |
 |------|-------------|
-| `m6A`, `inosine_m6A_2OmeA` | N6-methyladenosine / inosine / 2′-OMe-A |
-| `m5C`, `m5C_2OmeC` | 5-methylcytosine / 2′-OMe-C |
+| `m6A_DRACH` | N6-methyladenosine (DRACH-motif restricted) |
+| `inosine_m6A_2OmeA` | Inosine / N6-methyladenosine / 2′-OMe-A |
+| `m5C_2OmeC` | 5-methylcytosine / 2′-OMe-C |
 | `pseU_2OmeU` | Pseudouridine / 2′-OMe-U |
 | `2OmeG` | 2′-O-methylguanosine |
 
@@ -137,6 +138,47 @@ results/
     ├── report.html
     └── trace.txt
 ```
+
+---
+
+## Tutorial: running with test data
+
+A small test POD5 file (`testdata/1k_test_set.pod5`, ~1 k reads) is included in the repository so you can verify the pipeline works before committing to a full run.
+
+You still need to supply your own reference files. For human data, the recommended sources are:
+
+| File | Source |
+|------|--------|
+| Reference genome (FASTA) | [GENCODE GRCh38 genome](https://www.gencodegenes.org/human/) — *Genome sequence (GRCh38.p14)* |
+| Reference transcriptome (FASTA) | [GENCODE GRCh38 transcriptome](https://www.gencodegenes.org/human/) — *Transcript sequences* |
+| Genome annotation (GTF) | [GENCODE GRCh38 annotation](https://www.gencodegenes.org/human/) — *Comprehensive gene annotation* |
+
+Once you have the reference files, run the pipeline on the test data without modification calling:
+
+```bash
+nextflow run main.nf \
+  --pod5_dir ./testdata \
+  --model fast \
+  --ref_genome ./refs/genome.fa \
+  --ref_transcriptome ./refs/transcripts.fa \
+  --genome_gtf ./refs/annotation.gtf \
+  --outdir ./test_results
+```
+
+`--model fast` is recommended here to reduce runtime. To also test modification calling, add `--mods`:
+
+```bash
+nextflow run main.nf \
+  --pod5_dir ./testdata \
+  --model fast \
+  --mods "m6A_DRACH" \
+  --ref_genome ./refs/genome.fa \
+  --ref_transcriptome ./refs/transcripts.fa \
+  --genome_gtf ./refs/annotation.gtf \
+  --outdir ./test_results
+```
+
+Results will appear under `./test_results/` with the same folder structure described in [Outputs](#outputs).
 
 ---
 
