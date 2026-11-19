@@ -1,0 +1,17 @@
+# Nextflow run files
+.nextflow/
+.nextflow.log*
+work/
+results/
+test_results/
+
+# R / Python
+.Rhistory
+.RData
+__pycache__/
+*.pyc
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store

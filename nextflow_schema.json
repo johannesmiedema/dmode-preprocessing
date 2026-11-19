@@ -11,14 +11,28 @@
             "title": "Input/output options",
             "type": "object",
             "fa_icon": "fas fa-arrow-right",
-            "description" : "Input parameters for Preprocessing",
+            "description": "Input parameters for Preprocessing. Provide exactly one of samplesheet, pod5_dir or ubam.",
             "properties": {
+                "samplesheet": {
+                    "title": "Samplesheet",
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Tab-separated file with columns sample, condition, input.",
+                    "help_text": "'input' is a POD5 directory/.pod5 file (basecalled with Dorado) or an unaligned BAM (basecalling is skipped). POD5 and BAM inputs can be mixed. 'condition' is required for the DModE analysis. Use instead of 'Pod5 folder' or 'Unaligned BAM'."
+                },
                 "pod5_dir": {
                     "title": "Pod5 folder",
                     "type": "string",
                     "format": "directory-path",
                     "description": "Path to the directory containing POD5 files only.",
-                    "help_text": "This is the directory where the raw nanopore signal data is stored."
+                    "help_text": "Single-sample alternative to the samplesheet; the folder name is used as sample ID. DModE is skipped."
+                },
+                "ubam": {
+                    "title": "Unaligned BAM",
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Already basecalled, unaligned BAM from Dorado (basecalling is skipped).",
+                    "help_text": "Single-sample alternative to the samplesheet; the file name is used as sample ID. If the BAM was basecalled with modification models, set 'mods' to those models to run modkit. DModE is skipped."
                 },
                 "ref_genome": {
                     "title": "Genome reference",
@@ -52,7 +66,10 @@
                     "title": "Publish Mode",
                     "type": "string",
                     "default": "copy",
-                    "enum": ["symlink", "copy"],
+                    "enum": [
+                        "symlink",
+                        "copy"
+                    ],
                     "description": "Method for saving results (symlink or copy).",
                     "help_text": "Select 'symlink' to link files (saves disk space) or 'copy' to duplicate them (safer for long-term storage)."
                 }
@@ -60,7 +77,6 @@
             "allOf": [
                 {
                     "required": [
-                        "pod5_dir",
                         "ref_genome",
                         "ref_transcriptome",
                         "genome_gtf"
@@ -75,7 +91,11 @@
                 "model": {
                     "title": "Dorado model",
                     "type": "string",
-                    "enum": ["fast","hac","sup"],
+                    "enum": [
+                        "fast",
+                        "hac",
+                        "sup"
+                    ],
                     "default": "sup",
                     "description": "Basecalling model alias or full name",
                     "help_text": "Use 'fast', 'hac', or 'sup' for automatic detection, or provide a full model name for reproducibility."
@@ -84,8 +104,14 @@
                     "title": "Should modifications be detected ?",
                     "type": "string",
                     "default": "false",
-                    "description": "Space-separated list of modifications to call (e.g., 'm6A 5mC').",
-                    "help_text": "Set to false to disable modification calling."
+                    "description": "Comma-separated modification models (e.g. 'm6A_DRACH' or 'inosine_m6A_2OmeA,pseU_2OmeU'). For BAM input: the models the BAM was basecalled with.",
+                    "help_text": "Set to false to disable modification calling and modkit pileup."
+                },
+                "max_reads": {
+                    "title": "Maximum reads per sample",
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Basecall only the first N reads per sample (Dorado --max-reads), e.g. for test runs. 0 = all reads."
                 }
             }
         },
@@ -94,11 +120,11 @@
             "type": "object",
             "fa_icon": "fas fa-cogs",
             "properties": {
-                "modkit_threshold": {
+                "modkit_mod_threshold": {
                     "title": "Modification confidence threshold",
                     "type": "number",
                     "default": 0.98,
-                    "description": "Probability threshold for Modkit pileup.",
+                    "description": "Per-modification probability threshold for Modkit pileup.",
                     "help_text": "Minimum probability to count a call as modified."
                 },
                 "modkit_filter_threshold": {
@@ -118,7 +144,17 @@
                 "use_gpu": {
                     "title": "Which GPU should be used (cuda:0-cuda:4,cuda:all options)",
                     "type": "string",
-                    "enum": ["cuda:0","cuda:1","cuda:2","cuda:3","cuda:4","cuda:0,1","cuda:2,3","cuda:3,4","cuda:all"],
+                    "enum": [
+                        "cuda:0",
+                        "cuda:1",
+                        "cuda:2",
+                        "cuda:3",
+                        "cuda:4",
+                        "cuda:0,1",
+                        "cuda:2,3",
+                        "cuda:3,4",
+                        "cuda:all"
+                    ],
                     "default": "cuda:all",
                     "description": "Use GPU acceleration for basecalling",
                     "help_text": "Enable GPU acceleration for faster basecalling. Disable if no GPU is available."
@@ -126,9 +162,34 @@
                 "cpus": {
                     "title": "Number of threads/cpus",
                     "type": "integer",
-                    "default": 4,
-                    "description": "Number of CPUs to use for multi-threaded processes",
-                    "help_text": "Specifies the number of CPU cores to allocate to each process."
+                    "default": 0,
+                    "description": "Threads per job (0 = automatic from --max_cpus)",
+                    "help_text": "0: alignment, modkit and oarfish get half of --max_cpus, Dorado 12, all other steps 4. A value > 0 gives every job exactly that many threads (capped at --max_cpus).",
+                    "minimum": 0
+                },
+                "max_basecalling": {
+                    "title": "Parallel basecalling jobs",
+                    "type": "integer",
+                    "default": 1,
+                    "minimum": 1,
+                    "description": "Number of Dorado basecalling jobs running at the same time",
+                    "help_text": "Keep 1 with a single GPU."
+                },
+                "max_alignments": {
+                    "title": "Parallel alignment jobs",
+                    "type": "integer",
+                    "default": 1,
+                    "minimum": 1,
+                    "description": "Number of minimap2 jobs running at the same time (separately for genome and transcriptome)",
+                    "help_text": "Genome alignment needs ~19 GB RAM per job."
+                },
+                "max_cpus": {
+                    "title": "Maximum total CPUs",
+                    "type": "integer",
+                    "default": 0,
+                    "minimum": 0,
+                    "description": "Maximum CPUs used by all running jobs together (0 = all cores)",
+                    "help_text": "Jobs are only started while the sum of their CPUs fits into this budget. --cpus is capped at this value."
                 }
             }
         },
@@ -166,6 +227,88 @@
                     "hidden": true
                 }
             }
+        },
+        "dmode_options": {
+            "title": "DModE options",
+            "type": "object",
+            "fa_icon": "fas fa-chart-bar",
+            "description": "Differential expression and modification analysis after preprocessing (samplesheet input only).",
+            "properties": {
+                "run_dmode": {
+                    "title": "Run DModE",
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Run DModE after preprocessing. Requires a samplesheet with at least two conditions."
+                },
+                "reference_levels": {
+                    "title": "Reference condition(s)",
+                    "type": "string",
+                    "description": "Comma-separated control condition(s) from the samplesheet."
+                },
+                "dmode_level": {
+                    "title": "Analysis level",
+                    "type": "string",
+                    "default": "gene,transcript",
+                    "enum": [
+                        "gene,transcript",
+                        "gene",
+                        "transcript"
+                    ],
+                    "description": "Gene level (featureCounts + genome modkit) and/or transcript level (oarfish + transcriptome modkit)."
+                },
+                "dmode_coverage": {
+                    "title": "Minimum coverage",
+                    "type": "integer",
+                    "default": 20,
+                    "description": "Minimum read coverage of a modification site."
+                },
+                "dmode_frequency": {
+                    "title": "Minimum modification frequency (%)",
+                    "type": "number",
+                    "default": 10,
+                    "description": "Minimum modification frequency of a site."
+                },
+                "dmode_correction": {
+                    "title": "P-value correction",
+                    "type": "string",
+                    "default": "SLIM",
+                    "enum": [
+                        "SLIM",
+                        "BH"
+                    ],
+                    "description": "Multiple-testing correction for differential modification."
+                },
+                "dmode_alpha_mod": {
+                    "title": "Alpha (modification)",
+                    "type": "number",
+                    "default": 0.01,
+                    "description": "Significance threshold for differential modification."
+                },
+                "dmode_alpha_exp": {
+                    "title": "Alpha (expression)",
+                    "type": "number",
+                    "default": 0.01,
+                    "description": "Significance threshold for differential expression."
+                },
+                "dmode_modifications": {
+                    "title": "Modification types",
+                    "type": "string",
+                    "description": "Comma-separated types to analyse (m6A, Am, Ino, pseU, Um, Gm, Cm, m5C). Default: all present."
+                },
+                "dmode_basic_statistics": {
+                    "title": "DModE basic statistics",
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Also run dmode <level>_basic_statistics (PCA, UMAP, site counts, distributions, sample correlation). Needs --mods."
+                },
+                "dmode_container": {
+                    "title": "DModE container",
+                    "type": "string",
+                    "default": "jmiedema/dmode:0.1",
+                    "hidden": true,
+                    "description": "Container image used for the DModE step."
+                }
+            }
         }
     },
     "allOf": [
@@ -179,9 +322,12 @@
             "$ref": "#/definitions/modkit_options"
         },
         {
+            "$ref": "#/definitions/dmode_options"
+        },
+        {
             "$ref": "#/definitions/gpu_options"
         },
-        {   
+        {
             "$ref": "#/definitions/advanced_options"
         },
         {
@@ -218,7 +364,6 @@
             "memory": "64GB"
         },
         "run_time": "~10 hours per sample, highly dependent on dataset size",
-        "arm_support": true 
+        "arm_support": true
     }
 }
-
