@@ -304,7 +304,7 @@
                 "dmode_container": {
                     "title": "DModE container",
                     "type": "string",
-                    "default": "jmiedema/dmode:0.1",
+                    "default": "jmiedema/dmode:0.3",
                     "hidden": true,
                     "description": "Container image used for the DModE step."
                 }

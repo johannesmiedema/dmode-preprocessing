@@ -33,7 +33,7 @@ A [Nextflow](https://www.nextflow.io/) pipeline for preprocessing Oxford Nanopor
 | Transcript quantification | oarfish 0.13.0 | `quay.io/biocontainers/oarfish:0.13.0--hd727d2a_0` |
 | Modification pileup | modkit 0.6.4 | `quay.io/biocontainers/ont-modkit:0.6.4--h7f49ad2_0` |
 | QC | NanoComp 1.25.6 | `quay.io/biocontainers/nanocomp:1.25.6--pyhdfd78af_0` |
-| Differential analysis | DModE | `jmiedema/dmode:0.1` (built locally, see below) |
+| Differential analysis | DModE | `jmiedema/dmode:0.3` (Docker Hub, see below) |
 
 Alignment settings:
 
@@ -54,11 +54,12 @@ Transcript quantification: oarfish maps the basecalled reads itself (read mode) 
 
 All tools run inside Docker containers — no manual software installation needed beyond Nextflow and the NVIDIA Container Toolkit. The CUDA toolkit does not need to be installed on the host; the Dorado container bundles everything it needs.
 
-The DModE step uses the image set by `--dmode_container` (default `jmiedema/dmode:0.1`). It is built from a local [dmode](https://github.com/johannesmiedema/dmode) checkout with `containers/dmode.Dockerfile`, so the pipeline uses exactly that dmode version:
+The DModE step uses the image set by `--dmode_container` (default `jmiedema/dmode:0.3`, pulled from Docker Hub automatically). It is built from a [dmode](https://github.com/johannesmiedema/dmode) checkout with `containers/dmode.Dockerfile`. To build your own version:
 
 ```bash
 git clone https://github.com/johannesmiedema/dmode.git
-docker build -f containers/dmode.Dockerfile -t jmiedema/dmode:0.1 ./dmode
+docker build -f containers/dmode.Dockerfile -t <your-name>/dmode:<tag> ./dmode
+# then run the pipeline with --dmode_container <your-name>/dmode:<tag>
 ```
 
 ---
@@ -171,7 +172,7 @@ To run without modification calling (expression only), leave out `--mods`.
 | `--dmode_alpha_exp` | `0.01` | Alpha for differential expression |
 | `--dmode_modifications` | all | Restrict to types, e.g. `m6A,pseU` |
 | `--dmode_basic_statistics` | `true` | Also run DModE basic statistics per level (PCA, UMAP, site counts, distributions, sample correlation). Needs `--mods` |
-| `--dmode_container` | `jmiedema/dmode:0.1` | DModE container image |
+| `--dmode_container` | `jmiedema/dmode:0.3` | DModE container image |
 
 With `--mods`, DModE runs per level the combined `diff_<level>_expression_and_modification` plus `diff_<level>_expression` and `diff_<level>_modification` on their own (and `<level>_basic_statistics`, see `--dmode_basic_statistics`); without `--mods`, only `diff_<level>_expression`. Results go to `<outdir>/dmode/<level>/`: the generated DModE metadata sheets (`counts_metadata.tsv`, `mods_metadata.tsv`) and `analysis/` with all tables and plots (with `--mods` also `<level>_basic_statistics/`). All levels are combined into one self-contained HTML report, `<outdir>/dmode/dmode_report.html`, with a page per analysis.
 

@@ -1,6 +1,6 @@
 # DModE analysis container used by the DMODE process.
 # Built from a local dmode checkout (the build context), so the pipeline uses exactly that version:
-#   docker build -f containers/dmode.Dockerfile -t jmiedema/dmode:0.1 /path/to/dmode
+#   docker build -f containers/dmode.Dockerfile -t jmiedema/dmode:0.3 /path/to/dmode
 FROM python:3.12-slim
 
 # procps provides `ps`, which Nextflow uses for task metrics
